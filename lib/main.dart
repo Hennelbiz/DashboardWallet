@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:wallet_dashboard/crypto_data.dart';
 import 'package:crypto_font_icons/crypto_font_icons.dart';
 import 'package:wallet_dashboard/widgets/custom_app_bar.dart';
+import 'package:wallet_dashboard/widgets/custom_bottom_bar.dart';
 
 void main() {
   runApp(const MyApp());
@@ -38,6 +39,7 @@ class _DashBoardState extends State<DashBoard> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const CustomAppBar(),
+      bottomNavigationBar: const BottomNavBar(),
         body: Container(
           child: Column(
             mainAxisSize: MainAxisSize.max,

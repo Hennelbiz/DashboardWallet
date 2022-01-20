@@ -1,8 +1,7 @@
 import 'dart:ui';
-
-import 'package:crypto_font_icons/crypto_font_icon_data.dart';
-import 'package:crypto_font_icons/crypto_font_icons.dart';
 import 'package:flutter/material.dart';
+import 'package:wallet_dashboard/crypto_data.dart';
+import 'package:crypto_font_icons/crypto_font_icons.dart';
 
 void main() {
   runApp(const MyApp());
@@ -31,88 +30,117 @@ class DashBoard extends StatefulWidget {
 }
 
 class _DashBoardState extends State<DashBoard> {
+  var cryptoData = CryptoData.getData;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-      padding: const EdgeInsets.fromLTRB(10, 30, 10, 10),
-      height: 220,
-      width: double.maxFinite,
-      child: Card(
-        elevation: 5,
-        child: Padding(
-          padding: const EdgeInsets.all(7),
-          child: Stack(
+        body: Container(
+          child: Column(
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Align(
-                alignment: Alignment.centerRight,
-                child: Stack(
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.only(left: 10, top: 5),
-                      child: Column(
-                        children: [
-                          Row(
-                            children: [
-                              cryptoIcon(),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              cryptoNameSymbol(),
-                              const Spacer(),
-                              cryptoChange(),
-                              const SizedBox(
-                                height: 10,
-                              ),
-                              changeIcon(),
-                              const SizedBox(
-                                width: 20,
-                              )
-                            ],
-                          ),
-                          Row(
-                            children: [cryptoAmount()],
-                          )
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-              )
+              Expanded(
+                   child: ListView.builder(
+// scrollDirection: Axis.horizontal,
+                   itemCount: cryptoData.length,
+                   itemBuilder: (context, index) {
+                     return Container(
+                       padding: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+                       height: 220,
+                       width: double.maxFinite,
+                       child: Card(
+                         elevation: 5,
+                         child: Container(
+                           decoration: const BoxDecoration(
+                             border: Border(
+                               top: BorderSide(
+                                   width: 2.0, 
+                                   color: Colors.black
+                                   //color: cryptoData[index]['iconColor']),
+                               ),
+                             ),
+                             color: Colors.white,
+                           ),
+                           child: Padding(
+                             padding: const EdgeInsets.all(7),
+                             child: Stack(children: <Widget>[
+                               Align(
+                                 alignment: Alignment.centerRight,
+                                 child: Stack(
+                                   children: <Widget>[
+                                     Padding(
+                                         padding: const EdgeInsets.only(left: 10, top: 5),
+                                         child: Column(
+                                           children: <Widget>[
+                                             Row(
+                                               children: <Widget>[
+                                                 cryptoIcon(cryptoData[index]),
+                                               const SizedBox(
+                                                 height: 10,
+                                               ),
+                                               cryptoNameSymbol(cryptoData[index]),
+                                               const Spacer(),
+                                               cryptoChange(cryptoData[index]),
+                                               const SizedBox(
+                                                 width: 10,
+                                               ),
+                                               changeIcon(cryptoData[index]),
+                                               const SizedBox(
+                                                 width: 20,
+                                               )
+                                             ],
+                                           ),
+                                           Row(
+                                           children: <Widget>[
+                                             cryptoAmount(cryptoData[index])
+                                           ],
+                                         )
+                                       ],
+                                      ))
+                                 ],
+                               ),
+                             )
+                           ]),
+                         ),
+                       ),
+                     ),
+                   );
+                 }),
+           ),
             ],
           ),
-        ),
-      ),
     ));
   }
 }
 
-Widget cryptoIcon() {
-  return const Padding(
-    padding: EdgeInsets.only(left: 15.0),
+Widget cryptoIcon(data) {
+  return Padding(
+    padding: const EdgeInsets.only(left: 15.0),
     child: Align(
       alignment: Alignment.centerLeft,
       child: Icon(
-        CryptoFontIcons.BTC,
-        color: Colors.amber,
+        data['icon'],
+        color: data['iconColor'],
         size: 40,
       ),
     ),
   );
 }
 
-Widget cryptoNameSymbol() {
+Widget cryptoNameSymbol(data) {
   return Align(
     alignment: Alignment.centerLeft,
     child: RichText(
-      text: const TextSpan(
-        text: 'Bitcoin',
-        style: TextStyle(
+      text: TextSpan(
+        //text: 'Bitcoin',
+        text: '${data['name']}',
+        style: const TextStyle(
             fontWeight: FontWeight.bold, color: Colors.black, fontSize: 20),
         children: <TextSpan>[
           TextSpan(
-              text: '\nBT',
-              style: TextStyle(
+              text: '\n${data['symbol']}',
+              style: const TextStyle(
                   color: Colors.grey,
                   fontSize: 15,
                   fontWeight: FontWeight.bold)),
@@ -122,19 +150,19 @@ Widget cryptoNameSymbol() {
   );
 }
 
-Widget cryptoChange() {
+Widget cryptoChange(data) {
   return Align(
     alignment: Alignment.topRight,
     child: RichText(
-      text: const TextSpan(
-        text: '+3.67%',
-        style: TextStyle(
+      text: TextSpan(
+        text: '${data['change']}',
+        style: const TextStyle(
             fontWeight: FontWeight.bold, color: Colors.green, fontSize: 20),
         children: <TextSpan>[
           TextSpan(
-              text: '\n+202.835',
+              text: '\n${data['changeValue']}',
               style: TextStyle(
-                  color: Colors.green,
+                  color: data['changeColor'],
                   fontSize: 15,
                   fontWeight: FontWeight.bold)),
         ],
@@ -143,17 +171,23 @@ Widget cryptoChange() {
   );
 }
 
-Widget changeIcon() {
-  return const Align(
+Widget changeIcon(data) {
+  return Align(
       alignment: Alignment.topRight,
-      child: Icon(
-        Icons.sort,
-        color: Colors.green,
-        size: 30,
-      ));
+      child: data['change'].contains('-')
+          ? Icon(
+              Icons.arrow_circle_down,
+              color: data['changeColor'],
+              size: 30,
+            )
+          : Icon(
+              Icons.arrow_circle_down,
+              color: data['changeColor'],
+              size: 30,
+            ));
 }
 
-Widget cryptoAmount() {
+Widget cryptoAmount(data) {
   return Align(
     alignment: Alignment.centerLeft,
     child: Padding(
@@ -162,13 +196,13 @@ Widget cryptoAmount() {
         children: <Widget>[
           RichText(
             textAlign: TextAlign.left,
-            text: const TextSpan(
-              text: '\n\$12.279',
-              style: TextStyle(
+            text: TextSpan(
+              text: '\n${data['value']}',
+              style: const TextStyle(
                 color: Colors.grey,
                 fontSize: 35,
               ),
-              children: <TextSpan>[
+              children: const <TextSpan>[
                 TextSpan(
                     text: '\n0.1349',
                     style: TextStyle(
